@@ -16,19 +16,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import app.doggy.filamentsample.ui.theme.FilamentSampleTheme
+import com.google.android.filament.Camera
 import com.google.android.filament.Engine
+import com.google.android.filament.Renderer
+import com.google.android.filament.Scene
+import com.google.android.filament.SwapChain
+import com.google.android.filament.View
+import com.google.android.filament.Viewport
 import com.google.android.filament.android.UiHelper
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-  @Inject
-  lateinit var engine: Engine
+  private lateinit var engine: Engine
+  private lateinit var surfaceView: SurfaceView
+  private lateinit var uiHelper: UiHelper
+
+  private lateinit var renderer: Renderer
+  private lateinit var scene: Scene
+  private lateinit var view: View
+  private lateinit var camera: Camera
+
+  private var _swapChain: SwapChain? = null
+  private val swapChain get() = _swapChain!!
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
+    setUpFilament()
+    setupSurface()
+    setupView()
 
     setContent {
       FilamentSampleTheme {
@@ -38,13 +56,7 @@ class MainActivity : ComponentActivity() {
               modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-              factory = { context ->
-                SurfaceView(context).apply {
-                  val uiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK)
-                  uiHelper.renderCallback = SurfaceCallback()
-                  uiHelper.attachTo(this)
-                }
-              },
+              factory = { surfaceView },
             )
             Text(
               text = "Is engine valid: ${engine.isValid}",
@@ -56,24 +68,55 @@ class MainActivity : ComponentActivity() {
     }
   }
 
+  private fun setUpFilament() {
+    engine = Engine.create()
+
+    renderer = engine.createRenderer()
+    scene = engine.createScene()
+    view = engine.createView()
+    camera = engine.createCamera()
+  }
+
+  private fun setupSurface() {
+    surfaceView = SurfaceView(this@MainActivity)
+
+    uiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK)
+    uiHelper.renderCallback = SurfaceCallback()
+    uiHelper.attachTo(surfaceView)
+  }
+
+  private fun setupView() {
+    // TODO: Skybox を生成する
+    scene.skybox = null
+
+    view.camera = camera
+    view.scene = scene
+  }
+
   inner class SurfaceCallback : UiHelper.RendererCallback {
 
     // SurfaceView が生成されたとき
     override fun onNativeWindowChanged(surface: Surface) {
-      // TODO: 実装
       println("XXX: onNativeWindowChanged")
+
+      engine.destroySwapChain(swapChain)
+      _swapChain = engine.createSwapChain(surface)
     }
 
     // SurfaceView が破棄されたとき
     override fun onDetachedFromSurface() {
-      // TODO: 実装
       println("XXX: onDetachedFromSurface")
+
+      engine.destroySwapChain(swapChain)
+      engine.flushAndWait()
+      _swapChain = null
     }
 
     // SurfaceView の大きさが変更されたとき
     override fun onResized(width: Int, height: Int) {
-      // TODO: 実装
       println("XXX: onResized")
+
+      view.viewport = Viewport(0, 0, width, height)
     }
   }
 }
