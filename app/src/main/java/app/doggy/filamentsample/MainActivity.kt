@@ -57,16 +57,23 @@ class MainActivity : ComponentActivity() {
   }
 
   inner class SurfaceCallback : UiHelper.RendererCallback {
+
+    // SurfaceView が生成されたとき
     override fun onNativeWindowChanged(surface: Surface) {
       // TODO: 実装
+      println("XXX: onNativeWindowChanged")
     }
 
+    // SurfaceView が破棄されたとき
     override fun onDetachedFromSurface() {
       // TODO: 実装
+      println("XXX: onDetachedFromSurface")
     }
 
+    // SurfaceView の大きさが変更されたとき
     override fun onResized(width: Int, height: Int) {
       // TODO: 実装
+      println("XXX: onResized")
     }
   }
 }
