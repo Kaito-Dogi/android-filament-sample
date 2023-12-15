@@ -1,7 +1,7 @@
 package app.doggy.filamentsample
 
 import android.app.Application
-import com.google.android.filament.Filament
+import com.google.android.filament.utils.Utils
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -11,6 +11,6 @@ class FilamentSampleApplication : Application() {
     super.onCreate()
 
     // Filament を初期化
-    Filament.init()
+    Utils.init()
   }
 }
