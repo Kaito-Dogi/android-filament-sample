@@ -6,8 +6,7 @@ import com.google.android.filament.utils.Utils
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class FilamentSampleApplication : Application() {
-
+internal class FilamentSampleApplication : Application() {
   override fun onCreate() {
     super.onCreate()
 
