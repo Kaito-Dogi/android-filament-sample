@@ -4,6 +4,8 @@ package app.doggy.filamentsample
 
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.opengl.Matrix
 import android.os.Bundle
 import android.os.Handler
@@ -31,6 +33,7 @@ import com.google.android.filament.Viewport
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.FilamentHelper
 import com.google.android.filament.android.UiHelper
+import dagger.hilt.android.AndroidEntryPoint
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.PI
@@ -38,6 +41,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 internal class HelloTriangleActivity : Activity() {
+  companion object {
+    fun newIntent(context: Context) = Intent(context, HelloTriangleActivity::class.java)
+  }
 
   // 描画したい View（今回は SurfaceView）
   private lateinit var surfaceView: SurfaceView
