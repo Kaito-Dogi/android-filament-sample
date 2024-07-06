@@ -39,13 +39,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class MainActivity : Activity() {
-  // Filament を初期化
-  // ほとんどの API 呼び出しに必要な JNI ライブラリをロードする
-  companion object {
-    init {
-      Filament.init()
-    }
-  }
 
   // 描画したい View（今回は SurfaceView）
   private lateinit var surfaceView: SurfaceView
