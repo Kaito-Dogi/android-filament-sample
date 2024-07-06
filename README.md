@@ -18,7 +18,7 @@ Android アプリで Filament を使用するためのサンプルアプリで�
 - [Filament](https://github.com/google/filament/tree/main)
 - [Filament sample Android apps](https://github.com/google/filament/tree/main/android/samples)
   - [hello-triangle](https://github.com/google/filament/tree/main/android/samples/sample-hello-triangle)
-    - Filament のセットアップ方法を学ぶため
+    - Filament をセットアップし、動作確認するため
   - [texture-view](https://github.com/google/filament/tree/main/android/samples/sample-texture-view)
     - TextureView を使用した Filament の描画するため
     - ゲームなどではなく、UI の一部として Filament を使用する場合、SurfaceView よりも TextureView の方が適している（らしい）
