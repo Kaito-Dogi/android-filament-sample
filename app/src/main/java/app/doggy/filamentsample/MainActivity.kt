@@ -17,7 +17,6 @@ import com.google.android.filament.Camera
 import com.google.android.filament.Engine
 import com.google.android.filament.Entity
 import com.google.android.filament.EntityManager
-import com.google.android.filament.Filament
 import com.google.android.filament.IndexBuffer
 import com.google.android.filament.Material
 import com.google.android.filament.RenderableManager
