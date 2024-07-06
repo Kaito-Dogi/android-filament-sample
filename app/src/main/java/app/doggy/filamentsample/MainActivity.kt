@@ -164,7 +164,7 @@ class MainActivity : Activity() {
   }
 
   private fun loadMaterial() {
-    readUncompressedAsset("assets/materials/baked_color.filamat").let {
+    readUncompressedAsset("filamat/baked_color.filamat").let {
       material = Material.Builder().payload(it, it.remaining()).build(engine)
       material.compile(
         Material.CompilerPriorityQueue.HIGH,
