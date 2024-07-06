@@ -17,7 +17,7 @@ internal fun SampleSection(
   val context = LocalContext.current
   Column(
     modifier = modifier,
-    verticalArrangement = Arrangement.spacedBy(16.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     Button(onClick = { context.startActivity(HelloTriangleActivity.newIntent(context)) }) {
       Text(text = "hello-triangle")

@@ -2,7 +2,9 @@ package app.doggy.filamentsample
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,10 +13,12 @@ import app.doggy.filamentsample.component.SampleSection
 
 @Composable
 internal fun MainScreen() {
-  Surface(
+  Scaffold(
     modifier = Modifier.fillMaxSize(),
-  ) {
-    Column {
+  ) { innerPadding ->
+    Column(
+        modifier = Modifier.padding(innerPadding),
+    ) {
       SampleSection()
     }
   }
