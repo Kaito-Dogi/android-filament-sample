@@ -34,61 +34,75 @@ import com.google.android.filament.android.FilamentHelper
 import com.google.android.filament.android.UiHelper
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.channels.Channels
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
 class MainActivity : Activity() {
-  // Make sure to initialize Filament first
-  // This loads the JNI library needed by most API calls
+  // Filament を初期化
+  // ほとんどの API 呼び出しに必要な JNI ライブラリをロードする
   companion object {
     init {
       Filament.init()
     }
   }
 
-  // The View we want to render into
+  // 描画したい View（今回は SurfaceView）
   private lateinit var surfaceView: SurfaceView
 
-  // UiHelper is provided by Filament to manage SurfaceView and SurfaceTexture
+  // UiHelper
+  // SurfaceView や SurfaceTexture を管理する
   private lateinit var uiHelper: UiHelper
 
-  // DisplayHelper is provided by Filament to manage the display
+  // DisplayHelper
+  // ディスプレイを管理する
   private lateinit var displayHelper: DisplayHelper
 
-  // Choreographer is used to schedule new frames
+  // Choreographer
+  // 新しいフレームをスケジュールするために使用されるする
   private lateinit var choreographer: Choreographer
 
-  // Engine creates and destroys Filament resources
-  // Each engine must be accessed from a single thread of your choosing
-  // Resources cannot be shared across engines
+  // Engine
+  // Filament リソースの作成と破棄を行う
+  // 各 Engine は、選択した単一のスレッドからアクセスする必要がある
+  // リソースは Engine 間で共有できない
+  // リソース
+  // - Entity
+  // - Renderer
+  // - Scene
+  // - View
+  // - VertexBuffer, IndexBuffer, Material など
   private lateinit var engine: Engine
 
-  // A renderer instance is tied to a single surface (SurfaceView, TextureView, etc.)
+  // Renderer
+  // 単一の Surface（SurfaceView や TextureView など）に結び付けられる
   private lateinit var renderer: Renderer
 
-  // A scene holds all the renderable, lights, etc. to be drawn
+  // Scene
+  // すべての描画可能オブジェクトやライトなどを保持する
   private lateinit var scene: Scene
 
-  // A view defines a viewport, a scene and a camera for rendering
+  // View
+  // ビューポート、シーン、カメラを定義し、描画する
   private lateinit var view: View
 
-  // Should be pretty obvious :)
+  // Camera
   private lateinit var camera: Camera
 
   private lateinit var material: Material
   private lateinit var vertexBuffer: VertexBuffer
   private lateinit var indexBuffer: IndexBuffer
 
-  // Filament entity representing a renderable object
+  // Filament Entity
+  // 描画可能オブジェクトを表す
   @Entity
   private var renderable = 0
 
-  // A swap chain is Filament's representation of a surface
+  // SwapChain
+  // Filament の Surface の表現
   private var swapChain: SwapChain? = null
 
-  // Performs the rendering and schedules new frames
+  // レンダリングを行い、新しいフレームをスケジュールする
   private val frameScheduler = FrameCallback()
 
   private val animator = ValueAnimator.ofFloat(0.0f, 360.0f)
@@ -113,7 +127,7 @@ class MainActivity : Activity() {
     uiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK)
     uiHelper.renderCallback = SurfaceCallback()
 
-    // NOTE: To choose a specific rendering resolution, add the following line:
+    // 特定のレンダリング解像度を選択するには、次の行のコメントを実行する
     // uiHelper.setDesiredSize(1280, 720)
     uiHelper.attachTo(surfaceView)
   }
@@ -129,13 +143,13 @@ class MainActivity : Activity() {
   private fun setupView() {
     scene.skybox = Skybox.Builder().color(0.035f, 0.035f, 0.035f, 1.0f).build(engine)
 
-    // post-processing is not supported at feature level 0
+    // post-processing はフィーチャーレベル0ではサポートされていない
     view.isPostProcessingEnabled = false
 
-    // Tell the view which camera we want to use
+    // View に使用する Camera を指定する
     view.camera = camera
 
-    // Tell the view which scene we want to render
+    // 描画する Scene を View に指定する
     view.scene = scene
   }
 
@@ -143,21 +157,21 @@ class MainActivity : Activity() {
     loadMaterial()
     createMesh()
 
-    // To create a renderable we first create a generic entity
+    // 描画可能オブジェクトを作成するため、最初に一般的なエンティティを作成する
     renderable = EntityManager.get().create()
 
-    // We then create a renderable component on that entity
-    // A renderable is made of several primitives; in this case we declare only 1
+    // 続いて、そのエンティティに描画可能コンポーネントを作成する
+    // 描画可能オブジェクトは複数のプリミティブで構成される（今回は1つだけを宣言する）
     RenderableManager.Builder(1)
-      // Overall bounding box of the renderable
+      // 描画可能オブジェクトの全体の領域（Bounding Box）
       .boundingBox(Box(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.01f))
-      // Sets the mesh data of the first primitive
+      // 1つ目のプリミティブのメッシュデータを設定する
       .geometry(0, RenderableManager.PrimitiveType.TRIANGLES, vertexBuffer, indexBuffer, 0, 3)
-      // Sets the material of the first primitive
+      // 1つ目のプリミティブのマテリアルを設定する
       .material(0, material.defaultInstance)
       .build(engine, renderable)
 
-    // Add the entity to the scene to render it
+    // Scene に Entity を追加し、描画する
     scene.addEntity(renderable)
 
     startAnimation()
@@ -184,13 +198,14 @@ class MainActivity : Activity() {
     val intSize = 4
     val floatSize = 4
     val shortSize = 2
-    // A vertex is a position + a color:
-    // 3 floats for XYZ position, 1 integer for color
+    // 頂点は位置と色で構成される
+    // XYZ 座標に3つの浮動小数点、色に1つの整数
     val vertexSize = 3 * floatSize + intSize
 
-    // Define a vertex and a function to put a vertex in a ByteBuffer
+    // 頂点を定義
     data class Vertex(val x: Float, val y: Float, val z: Float, val color: Int)
 
+    // ByteBuffer に頂点を入れる関数
     fun ByteBuffer.put(v: Vertex): ByteBuffer {
       putFloat(v.x)
       putFloat(v.y)
@@ -199,39 +214,39 @@ class MainActivity : Activity() {
       return this
     }
 
-    // We are going to generate a single triangle
+    // 単一の三角形を生成する
     val vertexCount = 3
     val a1 = PI * 2.0 / 3.0
     val a2 = PI * 4.0 / 3.0
 
     val vertexData = ByteBuffer.allocate(vertexCount * vertexSize)
-      // It is important to respect the native byte order
+      // ネイティブのバイトオーダーを遵守する
       .order(ByteOrder.nativeOrder())
       .put(Vertex(1.0f, 0.0f, 0.0f, 0xffff0000.toInt()))
       .put(Vertex(cos(a1).toFloat(), sin(a1).toFloat(), 0.0f, 0xff00ff00.toInt()))
       .put(Vertex(cos(a2).toFloat(), sin(a2).toFloat(), 0.0f, 0xff0000ff.toInt()))
-      // Make sure the cursor is pointing in the right place in the byte buffer
+      // ByteBuffer のカーソルが正しい位置にあることを確認する
       .flip()
 
-    // Declare the layout of our mesh
+    // メッシュのレイアウトを宣言する
     vertexBuffer = VertexBuffer.Builder()
       .bufferCount(1)
       .vertexCount(vertexCount)
-      // Because we interleave position and color data we must specify offset and stride
-      // We could use de-interleaved data by declaring two buffers and giving each
-      // attribute a different buffer index
+      // 位置と色のデータを交互に配置しているため、オフセットとストライドを指定する必要がある
+      // - オフセット：各属性が頂点データ内でどこに存在するかを示す
+      // - ストライド：各頂点データが、バッファ内でどのくらいの間隔で繰り返されるかを示す
+      // 2つのバッファを宣言して、各属性に異なる Buffer Index を与えることで データを非交差化できる
       .attribute(VertexBuffer.VertexAttribute.POSITION, 0, VertexBuffer.AttributeType.FLOAT3, 0, vertexSize)
       .attribute(VertexBuffer.VertexAttribute.COLOR, 0, VertexBuffer.AttributeType.UBYTE4, 3 * floatSize, vertexSize)
-      // We store colors as unsigned bytes but since we want values between 0 and 1
-      // in the material (shaders), we must mark the attribute as normalized
+      // 色を符号なしバイトとして保存するが、マテリアル（シェーダー）では0から1の値を使用するため、属性を正規化としてマークする必要がある
       .normalized(VertexBuffer.VertexAttribute.COLOR)
       .build(engine)
 
-    // Feed the vertex data to the mesh
-    // We only set 1 buffer because the data is interleaved
+    // メッシュに頂点データを入力する
+    // データが交差しているため、1つのバッファしか設定しない
     vertexBuffer.setBufferAt(engine, 0, vertexData)
 
-    // Create the indices
+    // インデックスを作成する
     val indexData = ByteBuffer.allocate(vertexCount * shortSize)
       .order(ByteOrder.nativeOrder())
       .putShort(0)
@@ -247,7 +262,7 @@ class MainActivity : Activity() {
   }
 
   private fun startAnimation() {
-    // Animate the triangle
+    // 三角形をアニメーション化
     animator.interpolator = LinearInterpolator()
     animator.duration = 4000
     animator.repeatMode = ValueAnimator.RESTART
@@ -280,14 +295,14 @@ class MainActivity : Activity() {
   override fun onDestroy() {
     super.onDestroy()
 
-    // Stop the animation and any pending frame
+    // アニメーションと、保留中のフレームを停止する
     choreographer.removeFrameCallback(frameScheduler)
-    animator.cancel();
+    animator.cancel()
 
-    // Always detach the surface before destroying the engine
+    // Engine を破棄する前に、常に Surface をデタッチする
     uiHelper.detach()
 
-    // Cleanup all resources
+    // すべてのリソースをクリーンアップする
     engine.destroyEntity(renderable)
     engine.destroyRenderer(renderer)
     engine.destroyVertexBuffer(vertexBuffer)
@@ -297,26 +312,25 @@ class MainActivity : Activity() {
     engine.destroyScene(scene)
     engine.destroyCameraComponent(camera.entity)
 
-    // Engine.destroyEntity() destroys Filament related resources only
-    // (components), not the entity itself
+    // Engine.destroyEntity() は Filament に関連するリソースのみを破棄し、エンティティ自体は破棄しない
+    // そのため、Entity は EntityManager 経由で破棄する
     val entityManager = EntityManager.get()
     entityManager.destroy(renderable)
     entityManager.destroy(camera.entity)
 
-    // Destroying the engine will free up any resource you may have forgotten
-    // to destroy, but it's recommended to do the cleanup properly
+    // エンジンを破棄すると破棄し忘れたリソースも解放されるが、適切にクリーンアップすることが推奨されている
     engine.destroy()
   }
 
   inner class FrameCallback : Choreographer.FrameCallback {
     override fun doFrame(frameTimeNanos: Long) {
-      // Schedule the next frame
+      // 次のフレームをスケジュールする
       choreographer.postFrameCallback(this)
 
-      // This check guarantees that we have a swap chain
+      // SwapChain があることを確認
       if (uiHelper.isReadyToRender) {
-        // If beginFrame() returns false you should skip the frame
-        // This means you are sending frames too quickly to the GPU
+        // beginFrame() が false を返す場合、フレームをスキップする必要がある
+        // これは GPU にフレームを送信する速度が速すぎることを意味する
         if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {
           renderer.render(view)
           renderer.endFrame()
@@ -329,8 +343,7 @@ class MainActivity : Activity() {
     override fun onNativeWindowChanged(surface: Surface) {
       swapChain?.let { engine.destroySwapChain(it) }
 
-      // at feature level 0, we don't have post-processing, so we need to set
-      // the colorspace to sRGB (FIXME: it's not supported everywhere!)
+      // フィーチャーレベル0では post-processing がないため、カラースペースを sRGB に設定する必要がある（これはすべての場所でサポートされているわけではない）
       var flags = uiHelper.swapChainFlags
       if (engine.activeFeatureLevel == Engine.FeatureLevel.FEATURE_LEVEL_0) {
         if (SwapChain.isSRGBSwapChainSupported(engine)) {
@@ -339,16 +352,15 @@ class MainActivity : Activity() {
       }
 
       swapChain = engine.createSwapChain(surface, flags)
-      displayHelper.attach(renderer, surfaceView.display);
+      displayHelper.attach(renderer, surfaceView.display)
     }
 
     override fun onDetachedFromSurface() {
-      displayHelper.detach();
+      displayHelper.detach()
       swapChain?.let {
         engine.destroySwapChain(it)
-        // Required to ensure we don't return before Filament is done executing the
-        // destroySwapChain command, otherwise Android might destroy the Surface
-        // too early
+        // Filament が、destroySwapChain コマンドを実行し終わる前に戻らないようにするために必要
+        // これがないと、Android が Surface を早く破棄する可能性がある
         engine.flushAndWait()
         swapChain = null
       }
@@ -379,7 +391,7 @@ class MainActivity : Activity() {
     //
     //   return dst.apply { rewind() }
     // }
-    // `FileDescriptor` を使わずに、通常のストリームを使ってファイルを読み込む
+    // FileDescriptor を使わずに、通常のストリームを使ってファイルを読み込む
     assets.open(assetName).use { input ->
       val byteArray = input.readBytes()
       val buffer = ByteBuffer.allocate(byteArray.size)
