@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.doggy.filamentsample.component.FilamentView
 import app.doggy.filamentsample.component.MainTopAppBar
 import app.doggy.filamentsample.component.SampleSection
 
@@ -34,11 +35,12 @@ internal fun MainScreen(
   ) { innerPadding ->
     Box(
       modifier = Modifier
-          .fillMaxSize()
-          .padding(innerPadding),
+        .fillMaxSize()
+        .padding(innerPadding),
       contentAlignment = Alignment.Center,
     ) {
       Text(text = "3D モデルをドラッグで回転させたい")
+      FilamentView()
     }
   }
 
