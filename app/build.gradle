@@ -89,3 +89,7 @@ dependencies {
 kapt {
   correctErrorTypes true
 }
+
+clean.doFirst {
+  delete "src/main/assets/filamat"
+}
