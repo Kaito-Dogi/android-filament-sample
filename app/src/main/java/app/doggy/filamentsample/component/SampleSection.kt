@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import app.doggy.filamentsample.HelloTriangleActivity
+import app.doggy.filamentsample.sample.HelloTriangleActivity
 
 @Composable
 internal fun SampleSection(

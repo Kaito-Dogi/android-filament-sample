@@ -1,6 +1,6 @@
 // https://github.com/google/filament/blob/main/android/samples/sample-hello-triangle/src/main/java/com/google/android/filament/hellotriangle/MainActivity.kt
 
-package app.doggy.filamentsample
+package app.doggy.filamentsample.sample
 
 import android.animation.ValueAnimator
 import android.app.Activity
@@ -33,7 +33,6 @@ import com.google.android.filament.Viewport
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.FilamentHelper
 import com.google.android.filament.android.UiHelper
-import dagger.hilt.android.AndroidEntryPoint
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.PI
