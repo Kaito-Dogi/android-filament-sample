@@ -369,15 +369,22 @@ class MainActivity : Activity() {
   }
 
   private fun readUncompressedAsset(assetName: String): ByteBuffer {
-    assets.openFd(assetName).use { fd ->
-      val input = fd.createInputStream()
-      val dst = ByteBuffer.allocate(fd.length.toInt())
-
-      val src = Channels.newChannel(input)
-      src.read(dst)
-      src.close()
-
-      return dst.apply { rewind() }
+    // assets.openFd(assetName).use { fd ->
+    //   val input = fd.createInputStream()
+    //   val dst = ByteBuffer.allocate(fd.length.toInt())
+    //
+    //   val src = Channels.newChannel(input)
+    //   src.read(dst)
+    //   src.close()
+    //
+    //   return dst.apply { rewind() }
+    // }
+    // `FileDescriptor` を使わずに、通常のストリームを使ってファイルを読み込む
+    assets.open(assetName).use { input ->
+      val byteArray = input.readBytes()
+      val buffer = ByteBuffer.allocate(byteArray.size)
+      buffer.put(byteArray)
+      return buffer.apply { rewind() }
     }
   }
 }
