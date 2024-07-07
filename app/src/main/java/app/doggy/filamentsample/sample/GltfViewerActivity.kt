@@ -45,7 +45,8 @@ internal class GltfViewerActivity : Activity() {
   companion object {
     fun newIntent(context: Context) = Intent(context, GltfViewerActivity::class.java)
 
-    // Load the library for the utility layer, which in turn loads gltfio and the Filament core.
+    // Utility レイヤーのライブラリをロードする
+    // gltfio と Filament のコアもロードされる
     init {
       Utils.init()
     }
@@ -101,39 +102,39 @@ internal class GltfViewerActivity : Activity() {
     createDefaultRenderables()
     createIndirectLight()
 
-    setStatusText("To load a new model, go to the above URL on your host machine.")
+    setStatusText("新しいモデルを読み込むには、ホストマシンで上記の URL にアクセスしてください")
 
     val view = modelViewer.view
 
-    /*
-     * Note: The settings below are overriden when connecting to the remote UI.
+    /**
+     * 注: 以下の設定はリモート UI に接続すると上書きされる
      */
 
-    // on mobile, better use lower quality color buffer
+    // モバイルでは、低品質のカラーバッファを使用する
     view.renderQuality = view.renderQuality.apply {
       hdrColorBuffer = View.QualityLevel.MEDIUM
     }
 
-    // dynamic resolution often helps a lot
+    // Dynamic Resolution（動的解像度）が役立つ
     view.dynamicResolutionOptions = view.dynamicResolutionOptions.apply {
       enabled = true
       quality = View.QualityLevel.MEDIUM
     }
 
-    // MSAA is needed with dynamic resolution MEDIUM
+    // 動的解像度 MEDIUM では MSAA が必要
     view.multiSampleAntiAliasingOptions = view.multiSampleAntiAliasingOptions.apply {
       enabled = true
     }
 
-    // FXAA is pretty cheap and helps a lot
+    // FXAA は低コストだが効果的
     view.antiAliasing = View.AntiAliasing.FXAA
 
-    // ambient occlusion is the cheapest effect that adds a lot of quality
+    // Ambient Occlusion は低コストながら、クオリティをかなり向上させる
     view.ambientOcclusionOptions = view.ambientOcclusionOptions.apply {
       enabled = true
     }
 
-    // bloom is pretty expensive but adds a fair amount of realism
+    // Bloom は高コストだが、リアリティをかなり向上させる
     view.bloomOptions = view.bloomOptions.apply {
       enabled = true
     }
@@ -205,9 +206,9 @@ internal class GltfViewerActivity : Activity() {
       val engine = modelViewer.engine
       val equirect = HDRLoader.createTexture(engine, message.buffer)
       if (equirect == null) {
-        setStatusText("Could not decode HDR file.")
+        setStatusText("HDR ファイルのデコードに失敗しました")
       } else {
-        setStatusText("Successfully decoded HDR file.")
+        setStatusText("HDR ファイルのデコードに成功しました")
 
         val context = IBLPrefilterContext(engine)
         val equirectToCubemap = IBLPrefilterContext.EquirectangularToCubemap(context)
@@ -228,7 +229,7 @@ internal class GltfViewerActivity : Activity() {
         equirectToCubemap.destroy()
         context.destroy()
 
-        // destroy the previous IBl
+        // 前の IBL を破棄する
         engine.destroyIndirectLight(modelViewer.scene.indirectLight!!)
         engine.destroySkybox(modelViewer.scene.skybox!!)
 
@@ -240,13 +241,13 @@ internal class GltfViewerActivity : Activity() {
   }
 
   private suspend fun loadZip(message: RemoteServer.ReceivedMessage) {
-    // To alleviate memory pressure, remove the old model before deflating the zip.
+    // メモリ圧迫を緩和するため、zip の解凍前に古いモデルを削除する
     withContext(Dispatchers.Main) {
       modelViewer.destroyModel()
     }
 
-    // Large zip files should first be written to a file to prevent OOM.
-    // It is also crucial that we null out the message "buffer" field.
+    // 大きな zip ファイルでは OOM を防ぐため、まずファイルに書き出すべき
+    // また、メッセージの buffer フィールドを null にすることも重要
     val (zipStream, zipFile) = withContext(Dispatchers.IO) {
       val file = File.createTempFile("incoming", "zip", cacheDir)
       val raf = RandomAccessFile(file, "rw")
@@ -256,7 +257,7 @@ internal class GltfViewerActivity : Activity() {
       Pair(FileInputStream(file), file)
     }
 
-    // Deflate each resource using the IO dispatcher, one by one.
+    // IO ディスパッチャ を使用して、各リソースを一つずつ解凍する
     var gltfPath: String? = null
     var outOfMemory: String? = null
     val pathToBufferMapping = withContext(Dispatchers.IO) {
@@ -266,8 +267,7 @@ internal class GltfViewerActivity : Activity() {
         val entry = deflater.nextEntry ?: break
         if (entry.isDirectory) continue
 
-        // This isn't strictly required, but as an optimization
-        // we ignore common junk that often pollutes ZIP files.
+        // zip ファイルを汚染することが多い不要なファイルを無視する（厳密には必要ない）
         if (entry.name.startsWith("__MACOSX")) continue
         if (entry.name.startsWith(".DS_Store")) continue
 
@@ -291,20 +291,19 @@ internal class GltfViewerActivity : Activity() {
     zipFile.delete()
 
     if (gltfPath == null) {
-      setStatusText("Could not find .gltf or .glb in the zip.")
+      setStatusText(".gltf または .glb が見つかりませんでした")
       return
     }
 
     if (outOfMemory != null) {
-      setStatusText("Out of memory while deflating $outOfMemory")
+      setStatusText("$outOfMemory の解凍中にメモリ不足になりました")
       return
     }
 
     val gltfBuffer = pathToBufferMapping[gltfPath]!!
 
-    // In a zip file, the gltf file might be in the same folder as resources, or in a different
-    // folder. It is crucial to test against both of these cases. In any case, the resource
-    // paths are all specified relative to the location of the gltf file.
+    // zip ファイル内の gltf ファイルは、リソースと同じフォルダにある場合も、異なるフォルダにある場合もあり、どちらのケースもテストすることが重要
+    // いずれの場合も、リソースパスは gltf ファイルの場所に対して相対的に指定される
     var prefix = URI(gltfPath!!).resolve(".")
 
     withContext(Dispatchers.Main) {
@@ -315,7 +314,7 @@ internal class GltfViewerActivity : Activity() {
           val path = prefix.resolve(uri).toString()
           if (!pathToBufferMapping.contains(path)) {
             Log.e(TAG, "Could not find '$uri' in zip using prefix '$prefix' and base path '${gltfPath!!}'")
-            setStatusText("Zip is missing $path")
+            setStatusText("Zip に $path が見つかりません")
           }
           pathToBufferMapping[path]
         }
@@ -436,7 +435,7 @@ internal class GltfViewerActivity : Activity() {
 
       modelViewer.render(frameTimeNanos)
 
-      // Check if a new download is in progress. If so, let the user know with toast.
+      // 新しいダウンロードが進行中かどうか確認する
       val currentDownload = remoteServer?.peekIncomingLabel()
       if (RemoteServer.isBinary(currentDownload) && currentDownload != latestDownload) {
         latestDownload = currentDownload
@@ -444,7 +443,7 @@ internal class GltfViewerActivity : Activity() {
         setStatusText("Downloading $currentDownload")
       }
 
-      // Check if a new message has been fully received from the client.
+      // 新しいメッセージが完全に受信されたかどうか確認する
       val message = remoteServer?.acquireReceivedMessage()
       if (message != null) {
         if (message.label == latestDownload) {
@@ -459,7 +458,7 @@ internal class GltfViewerActivity : Activity() {
     }
   }
 
-  // Just for testing purposes, this releases the current model and reloads the default model.
+  // テストのため、現在のモデルを解放して、デフォルトのモデルを再読み込みする
   inner class DoubleTapListener : GestureDetector.SimpleOnGestureListener() {
     override fun onDoubleTap(e: MotionEvent): Boolean {
       modelViewer.destroyModel()
@@ -468,7 +467,7 @@ internal class GltfViewerActivity : Activity() {
     }
   }
 
-  // Just for testing purposes
+  // テスト用
   inner class SingleTapListener : GestureDetector.SimpleOnGestureListener() {
     override fun onSingleTapUp(event: MotionEvent): Boolean {
       modelViewer.view.pick(
