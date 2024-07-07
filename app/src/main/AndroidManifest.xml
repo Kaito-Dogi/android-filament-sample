@@ -28,6 +28,7 @@
       </intent-filter>
     </activity>
     <activity android:name=".sample.HelloTriangleActivity" />
+    <activity android:name=".sample.TextureViewActivity" />
   </application>
 
 </manifest>

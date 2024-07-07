@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.doggy.filamentsample.sample.HelloTriangleActivity
+import app.doggy.filamentsample.sample.TextureViewActivity
 
 @Composable
 internal fun SampleSection(
@@ -22,7 +23,7 @@ internal fun SampleSection(
     Button(onClick = { context.startActivity(HelloTriangleActivity.newIntent(context)) }) {
       Text(text = "hello-triangle")
     }
-    Button(onClick = { /*TODO*/ }) {
+    Button(onClick = { context.startActivity(TextureViewActivity.newIntent(context)) }) {
       Text(text = "texture-view")
     }
     Button(onClick = { /*TODO*/ }) {
