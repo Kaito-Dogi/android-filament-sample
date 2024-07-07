@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import app.doggy.filamentsample.sample.GltfViewerActivity
 import app.doggy.filamentsample.sample.HelloTriangleActivity
 import app.doggy.filamentsample.sample.TextureViewActivity
 
@@ -26,7 +27,7 @@ internal fun SampleSection(
     Button(onClick = { context.startActivity(TextureViewActivity.newIntent(context)) }) {
       Text(text = "texture-view")
     }
-    Button(onClick = { /*TODO*/ }) {
+    Button(onClick = { context.startActivity(GltfViewerActivity.newIntent(context)) }) {
       Text(text = "gltf-viewer")
     }
   }
