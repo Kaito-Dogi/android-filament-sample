@@ -19,6 +19,7 @@ import com.google.android.filament.Camera
 import com.google.android.filament.Engine
 import com.google.android.filament.Entity
 import com.google.android.filament.EntityManager
+import com.google.android.filament.Filament
 import com.google.android.filament.IndexBuffer
 import com.google.android.filament.Material
 import com.google.android.filament.RenderableManager
@@ -42,6 +43,12 @@ import kotlin.math.sin
 internal class HelloTriangleActivity : Activity() {
   companion object {
     fun newIntent(context: Context) = Intent(context, HelloTriangleActivity::class.java)
+
+    init {
+      // Filament を初期化
+      // ほとんどの API 呼び出しに必要な JNI ライブラリをロードする
+      Filament.init()
+    }
   }
 
   // 描画したい View（今回は SurfaceView）
