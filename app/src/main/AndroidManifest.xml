@@ -4,6 +4,8 @@
   xmlns:tools="http://schemas.android.com/tools"
   >
 
+  <uses-permission android:name="android.permission.INTERNET" />
+
   <application
     android:name="app.doggy.filamentsample.FilamentSampleApplication"
     android:allowBackup="true"

@@ -139,7 +139,7 @@ internal class GltfViewerActivity : Activity() {
       enabled = true
     }
 
-    // remoteServer = RemoteServer(8082)
+    remoteServer = RemoteServer(8082)
   }
 
   private fun createDefaultRenderables() {
